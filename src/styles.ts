@@ -307,6 +307,15 @@ export const sharedStyles = css`
     max-width: 280px;
   }
 
+  dialog.confirm-dialog[open] {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  }
+
   dialog.confirm-dialog::backdrop {
     background: rgba(0, 0, 0, 0.4);
   }
