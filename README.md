@@ -6,6 +6,8 @@ Renders one Klyqa Pet device — Welly (water fountain), Foody (feeder) or Air K
 and direct controls. The device type is detected automatically; you only
 pick the device.
 
+[![Open this repository in the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ninharp&repository=klyqa-pet-card&category=plugin)
+
 ## Screenshots
 
 TODO: add screenshots (light and dark theme) for Welly, Foody and Air Klyna once
