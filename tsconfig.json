@@ -17,5 +17,5 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["src", "dev/fixtures.ts"]
+  "include": ["src"]
 }

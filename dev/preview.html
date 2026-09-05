@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <title>klyqa-pet-card preview</title>
+    <style>
+      :root {
+        --card-background-color: #fff;
+        --primary-text-color: #212121;
+        --secondary-text-color: #727272;
+        --primary-color: #03a9f4;
+        --ha-card-border-radius: 12px;
+        --divider-color: #e0e0e0;
+        --success-color: #4caf50;
+        --warning-color: #ff9800;
+        --error-color: #f44336;
+        --text-primary-color: #fff;
+        color-scheme: light;
+      }
+      html[data-theme='dark'] {
+        --card-background-color: #1c1c1c;
+        --primary-text-color: #e1e1e1;
+        --secondary-text-color: #9b9b9b;
+        --divider-color: #383838;
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #f0f0f0;
+        font-family: 'Roboto', 'Segoe UI', sans-serif;
+      }
+      html[data-theme='dark'] body {
+        background: #101010;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      button#toggle-theme {
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="toggle-theme" type="button">Toggle dark theme</button>
+    <div class="grid" id="cards"></div>
+
+    <script type="module">
+      import '../dist/klyqa-pet-card.js';
+
+      function entity(entityId, deviceId, translationKey) {
+        return { entity_id: entityId, device_id: deviceId, platform: 'klyqa_pet', translation_key: translationKey };
+      }
+
+      function state(entityId, value, attributes = {}) {
+        return {
+          entity_id: entityId,
+          state: value,
+          attributes,
+          last_changed: '2026-09-06T00:00:00Z',
+          last_updated: '2026-09-06T00:00:00Z',
+        };
+      }
+
+      const devices = {
+        'dev-welly': {
+          id: 'dev-welly',
+          name: 'Welly 2',
+          manufacturer: 'Klyqa',
+          model_id: '@klyqa.welly',
+          identifiers: [['klyqa_pet', 'welly2']],
+        },
+        'dev-foody': {
+          id: 'dev-foody',
+          name: 'Klyqa Foody 19DC34',
+          manufacturer: 'Klyqa',
+          model_id: '@klyqa.foody',
+          identifiers: [['klyqa_pet', 'foody19dc34']],
+        },
+        'dev-air': {
+          id: 'dev-air',
+          name: 'Air Klyna Office',
+          manufacturer: 'Klyqa',
+          model_id: '@klyqa.airpurifier2',
+          identifiers: [['klyqa_pet', 'airklynaoffice']],
+        },
+      };
+
+      const entities = {};
+      const states = {};
+
+      function add(entityId, deviceId, translationKey, value, attributes) {
+        entities[entityId] = entity(entityId, deviceId, translationKey);
+        states[entityId] = state(entityId, value, attributes);
+      }
+
+      // Welly
+      add('select.welly_mode', 'dev-welly', 'mode', 'sensing', { options: ['sensing', 'fresh_water_24h', 'water_change', 'self_wash', 'drain'] });
+      add('switch.welly_heating', 'dev-welly', 'heating', 'off');
+      add('number.welly_heating_temperature', 'dev-welly', 'heating_temperature', '28', { min: 20, max: 40, step: 1, unit_of_measurement: '°C' });
+      add('sensor.welly_water_temperature', 'dev-welly', 'water_temperature', '23.4', { unit_of_measurement: '°C' });
+      add('sensor.welly_clean_tank_volume', 'dev-welly', 'clean_tank_volume', '1200', { unit_of_measurement: 'mL' });
+      add('sensor.welly_sewage_tank_volume', 'dev-welly', 'sewage_tank_volume', '300', { unit_of_measurement: 'mL' });
+      add('sensor.welly_drinking_volume', 'dev-welly', 'drinking_volume', '450', { unit_of_measurement: 'mL' });
+      add('sensor.welly_total_consumption', 'dev-welly', 'total_consumption', '12500', { unit_of_measurement: 'mL' });
+      add('button.welly_start_descaling', 'dev-welly', 'start_descaling', '2026-09-01T00:00:00Z');
+      add('button.welly_stop_descaling', 'dev-welly', 'stop_descaling', '2026-09-01T00:00:00Z');
+      add('binary_sensor.welly_water_tray_low', 'dev-welly', 'water_tray_low', 'off');
+
+      // Foody
+      add('sensor.foody_bowl_remaining', 'dev-foody', 'bowl_remaining', '85', { unit_of_measurement: 'g' });
+      add('sensor.foody_feeding_state', 'dev-foody', 'feeding_state', 'idle');
+      add('sensor.foody_bowl_state', 'dev-foody', 'bowl_state', 'normal');
+      add('sensor.foody_food_bin_state', 'dev-foody', 'food_bin_state', 'sufficient');
+      add('number.foody_portions', 'dev-foody', 'portions', '3', { min: 1, max: 40, step: 1 });
+      add('button.foody_dispense_food', 'dev-foody', 'dispense_food', '2026-09-01T00:00:00Z');
+      add('sensor.foody_last_manual_feeding', 'dev-foody', 'last_manual_feeding', 'succeeded');
+      add('sensor.foody_last_manual_portions', 'dev-foody', 'last_manual_portions', '3');
+      add('sensor.foody_next_feed_time', 'dev-foody', 'next_feed_time', '95', { unit_of_measurement: 'min' });
+      add('sensor.foody_realtime_weight', 'dev-foody', 'realtime_weight', '42', { unit_of_measurement: 'g' });
+      add('button.foody_query_bowl_weight', 'dev-foody', 'query_bowl_weight', '2026-09-01T00:00:00Z');
+      add('switch.foody_app_led', 'dev-foody', 'app_led', 'on');
+      add('switch.foody_app_pet_lock', 'dev-foody', 'app_pet_lock', 'off');
+      add('switch.foody_beep_switch', 'dev-foody', 'beep_switch', 'on');
+      add('sensor.foody_battery', 'dev-foody', undefined, '76', { device_class: 'battery', unit_of_measurement: '%' });
+
+      // Airpurifier
+      add('fan.air_purifier', 'dev-air', undefined, 'on', {
+        percentage: 66,
+        preset_mode: 'auto',
+        preset_modes: ['standalone', 'auto', 'night', 'pet'],
+      });
+      add('light.air_led', 'dev-air', 'led', 'on', { rgb_color: [242, 194, 48] });
+      add('switch.air_ionizer', 'dev-air', 'ionizer', 'on');
+      add('switch.air_child_lock', 'dev-air', 'child_lock', 'off');
+      add('sensor.air_pm25', 'dev-air', undefined, '18', { device_class: 'pm25', unit_of_measurement: 'µg/m³' });
+      add('sensor.air_air_quality', 'dev-air', 'air_quality', 'good');
+      add('sensor.air_filter_remaining', 'dev-air', 'filter_remaining', '4320', { unit_of_measurement: 'min' });
+      add('binary_sensor.air_power', 'dev-air', undefined, 'on', { device_class: 'power' });
+
+      const hass = {
+        states,
+        entities,
+        devices,
+        locale: { language: 'en' },
+        callService: async (domain, service, data) => {
+          console.log('callService', domain, service, data);
+        },
+      };
+
+      const cardsEl = document.getElementById('cards');
+      for (const deviceId of Object.keys(devices)) {
+        const card = document.createElement('klyqa-pet-card');
+        card.setConfig({ type: 'custom:klyqa-pet-card', device: deviceId });
+        card.hass = hass;
+        cardsEl.appendChild(card);
+      }
+
+      document.getElementById('toggle-theme').addEventListener('click', () => {
+        const root = document.documentElement;
+        root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      });
+    </script>
+  </body>
+</html>
