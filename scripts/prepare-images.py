@@ -28,7 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SOURCE_ROOT = Path.home() / "workspace" / "klyq-produktbilder"
 ASSETS_DIR = REPO_ROOT / "src" / "assets"
 
-MAX_DIMENSION = 220  # keeps the final bundle well under the 300 KB budget
+MAX_DIMENSION = 320  # keeps the final bundle well under the 300 KB budget
 PADDING_FRACTION = 0.04  # 4% of the larger cropped dimension, on every side
 
 WELLY_SOURCE = SOURCE_ROOT / "welly" / "SCR-20260905-ukus.png"
@@ -86,9 +86,10 @@ def downscale(image: Image.Image, max_dimension: int) -> Image.Image:
 
 
 def save_optimized_png(image: Image.Image, path: Path) -> None:
-    # Quantizing to an adaptive palette drastically shrinks flat-colour product
-    # renders while keeping the alpha channel (mode "PA"/"RGBA" via palette + alpha).
-    quantized = image.quantize(colors=48, method=Image.FASTOCTREE)
+    # Quantizing to an adaptive palette shrinks the product renders while keeping
+    # the alpha channel. Dithering hides the banding a small palette would
+    # otherwise leave in glossy/gradient areas (e.g. the Air Klyna's top).
+    quantized = image.quantize(colors=256, method=Image.FASTOCTREE, dither=Image.FLOYDSTEINBERG)
     quantized = quantized.convert("RGBA")
     # Re-apply original alpha, since palette quantization can shift the alpha channel.
     quantized.putalpha(image.getchannel("A"))

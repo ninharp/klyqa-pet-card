@@ -10,8 +10,9 @@ pick the device.
 
 ## Screenshots
 
-TODO: add screenshots (light and dark theme) for Welly, Foody and Air Klyna once
-available.
+| Welly | Foody | Air Klyna |
+| --- | --- | --- |
+| ![Welly card](docs/screenshots/welly.png) | ![Foody card](docs/screenshots/foody.png) | ![Air Klyna card](docs/screenshots/airpurifier.png) |
 
 ## Installation
 
