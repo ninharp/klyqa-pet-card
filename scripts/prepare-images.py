@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Prepare product images for the klyqa-pet-card bundle.
 
-Reads source renders from ~/workspace/klyq-produktbilder/, crops them to
-content, adds a small padding margin, downsizes them, and writes:
+Reads source renders from ~/workspace/klyq-produktbilder/, downsizes them,
+and writes:
 
   - src/assets/welly-<color>.webp       (one per WELLY_COLORS entry)
   - src/assets/airpurifier.webp         (front render, no sleeve)
@@ -41,7 +41,6 @@ ASSETS_DIR = REPO_ROOT / "src" / "assets"
 
 MAX_DIMENSION = 480  # WEBP keeps this cheap; sharper than the old 320px PNG budget
 WEBP_QUALITY = 90
-PADDING_FRACTION = 0.04  # 4% of the larger cropped dimension, on every side
 
 # Welly renders already ship with an alpha-transparent background, one file per color.
 # Filenames use the source's German "lavendel"; the TS-facing color name is "lavender".
@@ -72,19 +71,6 @@ AIRPURIFIER_SLEEVES: dict[str, Path] = {
 FOODY_SOURCE = SOURCE_ROOT / "foody" / "Foody-image-placeholder.png"
 
 
-def crop_to_content(image: Image.Image, padding_fraction: float) -> Image.Image:
-    """Crop to the alpha bounding box, then add symmetric padding."""
-    bbox = image.getbbox()
-    if bbox is None:
-        return image
-    cropped = image.crop(bbox)
-    width, height = cropped.size
-    pad = int(round(max(width, height) * padding_fraction))
-    padded = Image.new("RGBA", (width + 2 * pad, height + 2 * pad), (0, 0, 0, 0))
-    padded.paste(cropped, (pad, pad), cropped)
-    return padded
-
-
 def downscale(image: Image.Image, max_dimension: int) -> Image.Image:
     width, height = image.size
     scale = min(1.0, max_dimension / max(width, height))
@@ -104,8 +90,10 @@ def to_data_uri(path: Path) -> str:
 
 
 def process_photo(source: Path, dest: Path) -> None:
+    # No content-crop here: the source canvases are pre-composed by the designer
+    # with intentional padding so the devices sit at a consistent relative scale
+    # next to each other. Cropping to the alpha bbox would discard that.
     image = Image.open(source).convert("RGBA")
-    image = crop_to_content(image, PADDING_FRACTION)
     image = downscale(image, MAX_DIMENSION)
     save_webp(image, dest)
     print(f"{dest.name}: {image.size[0]}x{image.size[1]}, {dest.stat().st_size} bytes")
