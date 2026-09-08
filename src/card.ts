@@ -1,5 +1,4 @@
 import { LitElement, html, nothing, type TemplateResult } from 'lit';
-import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import type { HomeAssistant, KlyqaPetCardConfig, LovelaceCardEditor } from './ha-types';
 import { detectDeviceType, mapEntities, type DeviceType, type MappedEntities } from './mapping';
 import { isAvailable } from './derive';
@@ -9,7 +8,7 @@ import {
   AIRPURIFIER_IMAGE,
   AIRPURIFIER_SLEEVE_IMAGES,
   AIRPURIFIER_TOP_IMAGE,
-  FOODY_SVG,
+  FOODY_IMAGE,
   WELLY_IMAGES,
 } from './assets/index';
 
@@ -151,7 +150,7 @@ export class KlyqaPetCard extends LitElement {
 
   private _renderImage(deviceType: DeviceType, config: KlyqaPetCardConfig): TemplateResult {
     if (deviceType === 'foody') {
-      return html`${unsafeSVG(FOODY_SVG)}`;
+      return html`<img src=${FOODY_IMAGE} alt="Foody" />`;
     }
     if (deviceType === 'welly') {
       const src = WELLY_IMAGES[config.color ?? 'white'];

@@ -4,16 +4,23 @@
 Reads source renders from ~/workspace/klyq-produktbilder/, crops them to
 content, adds a small padding margin, downsizes them, and writes:
 
-  - src/assets/welly-<color>.png       (one per WELLY_COLORS entry)
-  - src/assets/airpurifier.png         (front render, no sleeve)
-  - src/assets/airpurifier-sleeve-<name>.png  (one per AIRPURIFIER_SLEEVES entry)
+  - src/assets/welly-<color>.webp       (one per WELLY_COLORS entry)
+  - src/assets/airpurifier.webp         (front render, no sleeve)
+  - src/assets/airpurifier-sleeve-<name>.webp  (one per AIRPURIFIER_SLEEVES entry)
+  - src/assets/foody.webp               (front render)
+  - src/assets/index.ts                 (exports each image as an embedded data URI
+                                          string, so the final Vite bundle stays a single file)
 
-Note: src/assets/airpurifier-top.png (control-panel top view) is NOT regenerated
-here — its source render no longer exists in klyq-produktbilder, so the
-previously generated file is kept and just re-encoded into index.ts.
-  - src/assets/foody.svg               (hand-drawn flat placeholder, no source image exists yet)
-  - src/assets/index.ts                (exports each image as an embedded data URI / raw SVG
-                                         string, so the final Vite bundle stays a single file)
+Images are saved as lossy WEBP rather than a quantized/dithered PNG palette: a
+256-color palette produces visible speckling and dull colors on these
+photographic renders (gradients, glossy surfaces), whereas WEBP keeps full
+24-bit color with no dithering artifacts at a *smaller* file size.
+
+Note: src/assets/airpurifier-top.webp (control-panel top view) is NOT
+regenerated from a fresh source here — its source render no longer exists in
+klyq-produktbilder, so the previously generated (dithered PNG) derivative is
+just re-encoded to WEBP as-is. Its dithering artifacts predate this and can't
+be fixed without the original render.
 
 Run with the ha-klyqa-pet venv (has Pillow):
   /Users/michael/workspace/ha-klyqa-pet/.venv/bin/python scripts/prepare-images.py
@@ -32,7 +39,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SOURCE_ROOT = Path.home() / "workspace" / "klyq-produktbilder"
 ASSETS_DIR = REPO_ROOT / "src" / "assets"
 
-MAX_DIMENSION = 320  # keeps each embedded image well-compressed
+MAX_DIMENSION = 480  # WEBP keeps this cheap; sharper than the old 320px PNG budget
+WEBP_QUALITY = 90
 PADDING_FRACTION = 0.04  # 4% of the larger cropped dimension, on every side
 
 # Welly renders already ship with an alpha-transparent background, one file per color.
@@ -49,10 +57,9 @@ WELLY_COLORS: dict[str, Path] = {
 DEFAULT_WELLY_COLOR = "white"
 
 AIRPURIFIER_SOURCE = SOURCE_ROOT / "klyna" / "Air-Klyna-HighRes-shadows-02.png"
-# No source render exists for the top view anymore (removed from klyq-produktbilder
-# when the color/sleeve renders were added) — the previously generated derivative
-# in ASSETS_DIR is kept as-is and just re-encoded into index.ts below.
-AIRPURIFIER_TOP_DEST = ASSETS_DIR / "airpurifier-top.png"
+# The old derivative (see module docstring) — re-encoded, not reprocessed.
+AIRPURIFIER_TOP_LEGACY_SOURCE = ASSETS_DIR / "airpurifier-top.png"
+AIRPURIFIER_TOP_DEST = ASSETS_DIR / "airpurifier-top.webp"
 
 # Sleeve mockups are only rendered in the straight-on pose (AirKlyna-Product3.png's
 # framing baked in), so selecting a sleeve always shows that pose, not the 3/4 hero.
@@ -61,6 +68,8 @@ AIRPURIFIER_SLEEVES: dict[str, Path] = {
     "pets": SOURCE_ROOT / "klyna" / "AirKlyna-Sleeves-Mockup-02.png",
     "leaves": SOURCE_ROOT / "klyna" / "AirKlyna-Sleeves-Mockup-03.png",
 }
+
+FOODY_SOURCE = SOURCE_ROOT / "foody" / "Foody-image-placeholder.png"
 
 
 def crop_to_content(image: Image.Image, padding_fraction: float) -> Image.Image:
@@ -85,56 +94,27 @@ def downscale(image: Image.Image, max_dimension: int) -> Image.Image:
     return image.resize(new_size, Image.LANCZOS)
 
 
-def save_optimized_png(image: Image.Image, path: Path) -> None:
-    # Quantizing to an adaptive palette shrinks the product renders while keeping
-    # the alpha channel. Dithering hides the banding a small palette would
-    # otherwise leave in glossy/gradient areas (e.g. the Air Klyna's top).
-    quantized = image.quantize(colors=256, method=Image.FASTOCTREE, dither=Image.FLOYDSTEINBERG)
-    quantized = quantized.convert("RGBA")
-    # Re-apply original alpha, since palette quantization can shift the alpha channel.
-    quantized.putalpha(image.getchannel("A"))
-    quantized.save(path, format="PNG", optimize=True)
+def save_webp(image: Image.Image, path: Path) -> None:
+    image.save(path, format="WEBP", quality=WEBP_QUALITY, method=6)
 
 
 def to_data_uri(path: Path) -> str:
     data = base64.b64encode(path.read_bytes()).decode("ascii")
-    return f"data:image/png;base64,{data}"
+    return f"data:image/webp;base64,{data}"
 
 
 def process_photo(source: Path, dest: Path) -> None:
     image = Image.open(source).convert("RGBA")
     image = crop_to_content(image, PADDING_FRACTION)
     image = downscale(image, MAX_DIMENSION)
-    save_optimized_png(image, dest)
+    save_webp(image, dest)
     print(f"{dest.name}: {image.size[0]}x{image.size[1]}, {dest.stat().st_size} bytes")
 
 
-FOODY_SVG = """<svg viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bodyShade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f7f7f5"/>
-      <stop offset="100%" stop-color="#e7e7e3"/>
-    </linearGradient>
-  </defs>
-  <ellipse cx="240" cy="420" rx="150" ry="18" fill="#000000" opacity="0.08"/>
-  <rect x="90" y="60" width="300" height="300" rx="36" fill="url(#bodyShade)" stroke="#d8d8d4" stroke-width="2"/>
-  <rect x="90" y="60" width="300" height="70" rx="36" fill="#f2c230"/>
-  <rect x="90" y="118" width="300" height="12" fill="#f2c230"/>
-  <circle cx="240" cy="95" r="14" fill="#3a3a3a"/>
-  <rect x="150" y="170" width="180" height="130" rx="14" fill="#3a3a3a"/>
-  <rect x="162" y="182" width="156" height="70" rx="8" fill="#f2f2f0" opacity="0.15"/>
-  <ellipse cx="240" cy="380" rx="120" ry="46" fill="#3a3a3a"/>
-  <ellipse cx="240" cy="374" rx="98" ry="34" fill="#f2f2f0"/>
-  <ellipse cx="240" cy="374" rx="98" ry="34" fill="#f2c230" opacity="0.18"/>
-</svg>
-"""
-
-
-def write_foody_svg() -> Path:
-    dest = ASSETS_DIR / "foody.svg"
-    dest.write_text(FOODY_SVG, encoding="utf-8")
-    print(f"{dest.name}: vector placeholder, {dest.stat().st_size} bytes")
-    return dest
+def reencode_legacy_top(source: Path, dest: Path) -> None:
+    image = Image.open(source).convert("RGBA")
+    save_webp(image, dest)
+    print(f"{dest.name}: {image.size[0]}x{image.size[1]}, {dest.stat().st_size} bytes (re-encoded, not reprocessed)")
 
 
 def write_assets_index(
@@ -142,15 +122,14 @@ def write_assets_index(
     airpurifier: Path,
     airpurifier_top: Path,
     sleeves: dict[str, Path],
-    foody_svg: Path,
+    foody: Path,
 ) -> None:
     dest = ASSETS_DIR / "index.ts"
     welly_entries = ",\n".join(f'  {color}: "{to_data_uri(path)}"' for color, path in welly.items())
     sleeve_entries = ",\n".join(f'  {name}: "{to_data_uri(path)}"' for name, path in sleeves.items())
     dest.write_text(
         "// Generated by scripts/prepare-images.py — do not edit by hand.\n"
-        "// Images are embedded as data URIs (PNG) or raw markup (SVG) so the\n"
-        "// final Vite bundle stays a single file.\n\n"
+        "// Images are embedded as data URIs so the final Vite bundle stays a single file.\n\n"
         "export const WELLY_IMAGES: Record<string, string> = {\n"
         f"{welly_entries},\n"
         "};\n\n"
@@ -159,7 +138,7 @@ def write_assets_index(
         "export const AIRPURIFIER_SLEEVE_IMAGES: Record<string, string> = {\n"
         f"{sleeve_entries},\n"
         "};\n\n"
-        f"export const FOODY_SVG = `{foody_svg.read_text(encoding='utf-8').strip()}`;\n",
+        f'export const FOODY_IMAGE = "{to_data_uri(foody)}";\n',
         encoding="utf-8",
     )
     print(f"{dest.name}: {dest.stat().st_size} bytes")
@@ -168,18 +147,20 @@ def write_assets_index(
 def main() -> None:
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
-    welly_dest = {color: ASSETS_DIR / f"welly-{color}.png" for color in WELLY_COLORS}
-    airpurifier_dest = ASSETS_DIR / "airpurifier.png"
-    sleeve_dest = {name: ASSETS_DIR / f"airpurifier-sleeve-{name}.png" for name in AIRPURIFIER_SLEEVES}
+    welly_dest = {color: ASSETS_DIR / f"welly-{color}.webp" for color in WELLY_COLORS}
+    airpurifier_dest = ASSETS_DIR / "airpurifier.webp"
+    sleeve_dest = {name: ASSETS_DIR / f"airpurifier-sleeve-{name}.webp" for name in AIRPURIFIER_SLEEVES}
+    foody_dest = ASSETS_DIR / "foody.webp"
 
     for color, source in WELLY_COLORS.items():
         process_photo(source, welly_dest[color])
     process_photo(AIRPURIFIER_SOURCE, airpurifier_dest)
+    reencode_legacy_top(AIRPURIFIER_TOP_LEGACY_SOURCE, AIRPURIFIER_TOP_DEST)
     for name, source in AIRPURIFIER_SLEEVES.items():
         process_photo(source, sleeve_dest[name])
-    foody_svg = write_foody_svg()
+    process_photo(FOODY_SOURCE, foody_dest)
 
-    write_assets_index(welly_dest, airpurifier_dest, AIRPURIFIER_TOP_DEST, sleeve_dest, foody_svg)
+    write_assets_index(welly_dest, airpurifier_dest, AIRPURIFIER_TOP_DEST, sleeve_dest, foody_dest)
 
 
 if __name__ == "__main__":
