@@ -32,10 +32,19 @@ export const sharedStyles = css`
     }
   }
 
+  .image-column {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
   .image-column img,
   .image-column svg {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: contain;
     display: block;
   }
 
