@@ -5,7 +5,13 @@ import { detectDeviceType, mapEntities, type DeviceType, type MappedEntities } f
 import { isAvailable } from './derive';
 import { resolveLang, t, tEnum, type Lang } from './i18n';
 import { sharedStyles } from './styles';
-import { AIRPURIFIER_IMAGE, AIRPURIFIER_TOP_IMAGE, FOODY_SVG, WELLY_IMAGE } from './assets/index';
+import {
+  AIRPURIFIER_IMAGE,
+  AIRPURIFIER_SLEEVE_IMAGES,
+  AIRPURIFIER_TOP_IMAGE,
+  FOODY_SVG,
+  WELLY_IMAGES,
+} from './assets/index';
 
 import './views/welly';
 import './views/foody';
@@ -148,9 +154,15 @@ export class KlyqaPetCard extends LitElement {
       return html`${unsafeSVG(FOODY_SVG)}`;
     }
     if (deviceType === 'welly') {
-      return html`<img src=${WELLY_IMAGE} alt="Welly" />`;
+      const src = WELLY_IMAGES[config.color ?? 'white'];
+      return html`<img src=${src} alt="Welly" />`;
     }
-    const src = config.image === 'top' ? AIRPURIFIER_TOP_IMAGE : AIRPURIFIER_IMAGE;
+    const sleeve = config.sleeve && config.sleeve !== 'none' ? config.sleeve : undefined;
+    const src = sleeve
+      ? AIRPURIFIER_SLEEVE_IMAGES[sleeve]
+      : config.image === 'top'
+        ? AIRPURIFIER_TOP_IMAGE
+        : AIRPURIFIER_IMAGE;
     return html`<img src=${src} alt="Air Klyna" />`;
   }
 

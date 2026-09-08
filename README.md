@@ -39,6 +39,8 @@ device: 1234abcd5678ef90    # device registry id (required)
 name: Küche                 # optional, overrides the device name
 show_image: true            # optional, default true
 image: top                  # airpurifier only: "front" (default) | "top"
+sleeve: leaves               # airpurifier only: overrides `image` with a sleeve design
+color: black                 # welly only: "white" (default) | "black" | "blue" | "green" | "lavender" | "pink" | "yellow"
 ```
 
 | Option | Type | Default | Description |
@@ -46,7 +48,9 @@ image: top                  # airpurifier only: "front" (default) | "top"
 | `device` | string | — | Required. The device registry id of a `klyqa_pet` device. |
 | `name` | string | device name | Overrides the card title. |
 | `show_image` | boolean | `true` | Shows the product image. |
-| `image` | `front` \| `top` | `front` | Air Klyna only: which render to show. |
+| `image` | `front` \| `top` | `front` | Air Klyna only: which render to show when no `sleeve` is set. |
+| `sleeve` | `none` \| `mountains` \| `pets` \| `leaves` | `none` | Air Klyna only: shows that sleeve design (always in the front pose), overriding `image`. |
+| `color` | `white` \| `black` \| `blue` \| `green` \| `lavender` \| `pink` \| `yellow` | `white` | Welly only: which colorway to show. |
 
 ## Supported devices
 

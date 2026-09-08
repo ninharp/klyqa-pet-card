@@ -71,11 +71,16 @@ export interface LovelaceCardConfig {
   [key: string]: unknown;
 }
 
+export type WellyColor = 'white' | 'black' | 'blue' | 'green' | 'lavender' | 'pink' | 'yellow';
+export type AirpurifierSleeve = 'none' | 'mountains' | 'pets' | 'leaves';
+
 export interface KlyqaPetCardConfig extends LovelaceCardConfig {
   device: string;
   name?: string;
   show_image?: boolean;
   image?: 'front' | 'top';
+  color?: WellyColor;
+  sleeve?: AirpurifierSleeve;
 }
 
 export interface LovelaceCardEditor extends HTMLElement {

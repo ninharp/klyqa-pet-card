@@ -38,7 +38,40 @@ const IMAGE_SCHEMA_ENTRY: HaFormSchemaEntry = {
   },
 };
 
-/** Builds the ha-form schema, adding the airpurifier-only `image` field when relevant. */
+const SLEEVE_SCHEMA_ENTRY: HaFormSchemaEntry = {
+  name: 'sleeve',
+  selector: {
+    select: {
+      mode: 'dropdown',
+      options: [
+        { value: 'none', label: 'None' },
+        { value: 'mountains', label: 'Mountains' },
+        { value: 'pets', label: 'Pets' },
+        { value: 'leaves', label: 'Leaves' },
+      ],
+    },
+  },
+};
+
+const COLOR_SCHEMA_ENTRY: HaFormSchemaEntry = {
+  name: 'color',
+  selector: {
+    select: {
+      mode: 'dropdown',
+      options: [
+        { value: 'white', label: 'White' },
+        { value: 'black', label: 'Black' },
+        { value: 'blue', label: 'Blue' },
+        { value: 'green', label: 'Green' },
+        { value: 'lavender', label: 'Lavender' },
+        { value: 'pink', label: 'Pink' },
+        { value: 'yellow', label: 'Yellow' },
+      ],
+    },
+  },
+};
+
+/** Builds the ha-form schema, adding device-type-specific fields when relevant. */
 export function computeSchema(
   hass: HomeAssistant | undefined,
   config: Partial<KlyqaPetCardConfig> | undefined,
@@ -46,7 +79,10 @@ export function computeSchema(
   const device = hass && config?.device ? hass.devices[config.device] : undefined;
   const deviceType = device ? detectDeviceType(device.model_id) : null;
   if (deviceType === 'airpurifier') {
-    return [...BASE_SCHEMA, IMAGE_SCHEMA_ENTRY];
+    return [...BASE_SCHEMA, IMAGE_SCHEMA_ENTRY, SLEEVE_SCHEMA_ENTRY];
+  }
+  if (deviceType === 'welly') {
+    return [...BASE_SCHEMA, COLOR_SCHEMA_ENTRY];
   }
   return BASE_SCHEMA;
 }
@@ -83,6 +119,8 @@ export class KlyqaPetCardEditor extends LitElement {
       name: 'Name',
       show_image: 'Show image',
       image: 'Image',
+      sleeve: 'Sleeve',
+      color: 'Color',
     };
     return labels[name] ?? name;
   }

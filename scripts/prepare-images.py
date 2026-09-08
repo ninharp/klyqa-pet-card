@@ -4,12 +4,16 @@
 Reads source renders from ~/workspace/klyq-produktbilder/, crops them to
 content, adds a small padding margin, downsizes them, and writes:
 
-  - src/assets/welly.png          (from klyq-produktbilder/welly/*.png)
-  - src/assets/airpurifier.png    (from klyq-produktbilder/klyna/AirKlyna-Render-3_4.png)
-  - src/assets/airpurifier-top.png (from klyq-produktbilder/klyna/AirKlyna-Render-Top.png)
-  - src/assets/foody.svg          (hand-drawn flat placeholder, no source image exists yet)
-  - src/assets/index.ts           (exports each image as an embedded data URI / raw SVG
-                                    string, so the final Vite bundle stays a single file)
+  - src/assets/welly-<color>.png       (one per WELLY_COLORS entry)
+  - src/assets/airpurifier.png         (front render, no sleeve)
+  - src/assets/airpurifier-sleeve-<name>.png  (one per AIRPURIFIER_SLEEVES entry)
+
+Note: src/assets/airpurifier-top.png (control-panel top view) is NOT regenerated
+here — its source render no longer exists in klyq-produktbilder, so the
+previously generated file is kept and just re-encoded into index.ts.
+  - src/assets/foody.svg               (hand-drawn flat placeholder, no source image exists yet)
+  - src/assets/index.ts                (exports each image as an embedded data URI / raw SVG
+                                         string, so the final Vite bundle stays a single file)
 
 Run with the ha-klyqa-pet venv (has Pillow):
   /Users/michael/workspace/ha-klyqa-pet/.venv/bin/python scripts/prepare-images.py
@@ -28,39 +32,35 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SOURCE_ROOT = Path.home() / "workspace" / "klyq-produktbilder"
 ASSETS_DIR = REPO_ROOT / "src" / "assets"
 
-MAX_DIMENSION = 320  # keeps the final bundle well under the 300 KB budget
+MAX_DIMENSION = 320  # keeps each embedded image well-compressed
 PADDING_FRACTION = 0.04  # 4% of the larger cropped dimension, on every side
 
-WELLY_SOURCE = SOURCE_ROOT / "welly" / "SCR-20260905-ukus.png"
-AIRPURIFIER_SOURCE = SOURCE_ROOT / "klyna" / "AirKlyna-Render-3_4.png"
-AIRPURIFIER_TOP_SOURCE = SOURCE_ROOT / "klyna" / "AirKlyna-Render-Top.png"
+# Welly renders already ship with an alpha-transparent background, one file per color.
+# Filenames use the source's German "lavendel"; the TS-facing color name is "lavender".
+WELLY_COLORS: dict[str, Path] = {
+    "white": SOURCE_ROOT / "welly" / "Welly-Device-white.png",
+    "black": SOURCE_ROOT / "welly" / "Welly-Device-black.png",
+    "blue": SOURCE_ROOT / "welly" / "Welly-Device-blue.png",
+    "green": SOURCE_ROOT / "welly" / "Welly-Device-green.png",
+    "lavender": SOURCE_ROOT / "welly" / "Welly-Device-lavendel.png",
+    "pink": SOURCE_ROOT / "welly" / "Welly-Device-pink.png",
+    "yellow": SOURCE_ROOT / "welly" / "Welly-Device-yellow.png",
+}
+DEFAULT_WELLY_COLOR = "white"
 
-# Whiteness -> alpha thresholds for the Welly screenshot (white studio background).
-# Pixels at or above WHITE_FULL are fully transparent; pixels at or below WHITE_KEEP
-# stay fully opaque; everything between fades linearly, which keeps the soft drop
-# shadow underneath the product instead of hard-cutting it away.
-WHITE_KEEP = 225
-WHITE_FULL = 253
+AIRPURIFIER_SOURCE = SOURCE_ROOT / "klyna" / "Air-Klyna-HighRes-shadows-02.png"
+# No source render exists for the top view anymore (removed from klyq-produktbilder
+# when the color/sleeve renders were added) — the previously generated derivative
+# in ASSETS_DIR is kept as-is and just re-encoded into index.ts below.
+AIRPURIFIER_TOP_DEST = ASSETS_DIR / "airpurifier-top.png"
 
-
-def whiten_to_alpha(image: Image.Image) -> Image.Image:
-    """Convert a white-background photo to a transparent PNG, preserving soft shadows."""
-    rgba = image.convert("RGBA")
-    pixels = rgba.load()
-    width, height = rgba.size
-    for y in range(height):
-        for x in range(width):
-            r, g, b, a = pixels[x, y]
-            brightness = min(r, g, b)
-            if brightness >= WHITE_FULL:
-                alpha = 0
-            elif brightness <= WHITE_KEEP:
-                alpha = a
-            else:
-                fade = (WHITE_FULL - brightness) / (WHITE_FULL - WHITE_KEEP)
-                alpha = int(a * fade)
-            pixels[x, y] = (r, g, b, alpha)
-    return rgba
+# Sleeve mockups are only rendered in the straight-on pose (AirKlyna-Product3.png's
+# framing baked in), so selecting a sleeve always shows that pose, not the 3/4 hero.
+AIRPURIFIER_SLEEVES: dict[str, Path] = {
+    "mountains": SOURCE_ROOT / "klyna" / "AirKlyna-Sleeves-Mockup-01.png",
+    "pets": SOURCE_ROOT / "klyna" / "AirKlyna-Sleeves-Mockup-02.png",
+    "leaves": SOURCE_ROOT / "klyna" / "AirKlyna-Sleeves-Mockup-03.png",
+}
 
 
 def crop_to_content(image: Image.Image, padding_fraction: float) -> Image.Image:
@@ -102,8 +102,7 @@ def to_data_uri(path: Path) -> str:
 
 
 def process_photo(source: Path, dest: Path) -> None:
-    image = Image.open(source)
-    image = whiten_to_alpha(image) if source == WELLY_SOURCE else image.convert("RGBA")
+    image = Image.open(source).convert("RGBA")
     image = crop_to_content(image, PADDING_FRACTION)
     image = downscale(image, MAX_DIMENSION)
     save_optimized_png(image, dest)
@@ -138,15 +137,28 @@ def write_foody_svg() -> Path:
     return dest
 
 
-def write_assets_index(welly: Path, airpurifier: Path, airpurifier_top: Path, foody_svg: Path) -> None:
+def write_assets_index(
+    welly: dict[str, Path],
+    airpurifier: Path,
+    airpurifier_top: Path,
+    sleeves: dict[str, Path],
+    foody_svg: Path,
+) -> None:
     dest = ASSETS_DIR / "index.ts"
+    welly_entries = ",\n".join(f'  {color}: "{to_data_uri(path)}"' for color, path in welly.items())
+    sleeve_entries = ",\n".join(f'  {name}: "{to_data_uri(path)}"' for name, path in sleeves.items())
     dest.write_text(
         "// Generated by scripts/prepare-images.py — do not edit by hand.\n"
         "// Images are embedded as data URIs (PNG) or raw markup (SVG) so the\n"
         "// final Vite bundle stays a single file.\n\n"
-        f'export const WELLY_IMAGE = "{to_data_uri(welly)}";\n\n'
+        "export const WELLY_IMAGES: Record<string, string> = {\n"
+        f"{welly_entries},\n"
+        "};\n\n"
         f'export const AIRPURIFIER_IMAGE = "{to_data_uri(airpurifier)}";\n\n'
         f'export const AIRPURIFIER_TOP_IMAGE = "{to_data_uri(airpurifier_top)}";\n\n'
+        "export const AIRPURIFIER_SLEEVE_IMAGES: Record<string, string> = {\n"
+        f"{sleeve_entries},\n"
+        "};\n\n"
         f"export const FOODY_SVG = `{foody_svg.read_text(encoding='utf-8').strip()}`;\n",
         encoding="utf-8",
     )
@@ -156,16 +168,18 @@ def write_assets_index(welly: Path, airpurifier: Path, airpurifier_top: Path, fo
 def main() -> None:
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
-    welly_dest = ASSETS_DIR / "welly.png"
+    welly_dest = {color: ASSETS_DIR / f"welly-{color}.png" for color in WELLY_COLORS}
     airpurifier_dest = ASSETS_DIR / "airpurifier.png"
-    airpurifier_top_dest = ASSETS_DIR / "airpurifier-top.png"
+    sleeve_dest = {name: ASSETS_DIR / f"airpurifier-sleeve-{name}.png" for name in AIRPURIFIER_SLEEVES}
 
-    process_photo(WELLY_SOURCE, welly_dest)
+    for color, source in WELLY_COLORS.items():
+        process_photo(source, welly_dest[color])
     process_photo(AIRPURIFIER_SOURCE, airpurifier_dest)
-    process_photo(AIRPURIFIER_TOP_SOURCE, airpurifier_top_dest)
+    for name, source in AIRPURIFIER_SLEEVES.items():
+        process_photo(source, sleeve_dest[name])
     foody_svg = write_foody_svg()
 
-    write_assets_index(welly_dest, airpurifier_dest, airpurifier_top_dest, foody_svg)
+    write_assets_index(welly_dest, airpurifier_dest, AIRPURIFIER_TOP_DEST, sleeve_dest, foody_svg)
 
 
 if __name__ == "__main__":

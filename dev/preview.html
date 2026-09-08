@@ -153,9 +153,16 @@
       };
 
       const cardsEl = document.getElementById('cards');
-      for (const deviceId of Object.keys(devices)) {
+      const configs = [
+        { device: 'dev-welly' },
+        { device: 'dev-welly', color: 'black', name: 'Welly (black)' },
+        { device: 'dev-foody' },
+        { device: 'dev-air' },
+        { device: 'dev-air', sleeve: 'leaves', name: 'Air Klyna (leaves sleeve)' },
+      ];
+      for (const config of configs) {
         const card = document.createElement('klyqa-pet-card');
-        card.setConfig({ type: 'custom:klyqa-pet-card', device: deviceId });
+        card.setConfig({ type: 'custom:klyqa-pet-card', ...config });
         card.hass = hass;
         cardsEl.appendChild(card);
       }
