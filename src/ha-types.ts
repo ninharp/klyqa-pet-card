@@ -74,6 +74,13 @@ export interface LovelaceCardConfig {
 export type WellyColor = 'white' | 'black' | 'blue' | 'green' | 'lavender' | 'pink' | 'yellow';
 export type AirpurifierSleeve = 'none' | 'mountains' | 'pets' | 'leaves';
 
+/** The subset of Home Assistant's tap_action shape this card understands. */
+export interface ActionConfig {
+  action?: 'default' | 'navigate' | 'more-info' | 'url' | 'none';
+  navigation_path?: string;
+  url_path?: string;
+}
+
 export interface KlyqaPetCardConfig extends LovelaceCardConfig {
   device: string;
   name?: string;
@@ -81,6 +88,7 @@ export interface KlyqaPetCardConfig extends LovelaceCardConfig {
   image?: 'front' | 'top';
   color?: WellyColor;
   sleeve?: AirpurifierSleeve;
+  tap_action?: ActionConfig;
 }
 
 export interface LovelaceCardEditor extends HTMLElement {

@@ -23,6 +23,7 @@ const BASE_SCHEMA: HaFormSchemaEntry[] = [
   },
   { name: 'name', selector: { text: {} } },
   { name: 'show_image', selector: { boolean: {} } },
+  { name: 'tap_action', selector: { ui_action: { default_action: 'navigate' } } },
 ];
 
 const IMAGE_SCHEMA_ENTRY: HaFormSchemaEntry = {
@@ -121,6 +122,7 @@ export class KlyqaPetCardEditor extends LitElement {
       image: 'Image',
       sleeve: 'Sleeve',
       color: 'Color',
+      tap_action: 'Tap on image',
     };
     return labels[name] ?? name;
   }

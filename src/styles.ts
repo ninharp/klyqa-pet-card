@@ -38,6 +38,13 @@ export const sharedStyles = css`
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+
+  .image-column:focus-visible {
+    outline: 2px solid var(--primary-color, #03a9f4);
+    outline-offset: 2px;
   }
 
   .image-column img,

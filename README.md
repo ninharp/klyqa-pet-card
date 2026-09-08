@@ -41,6 +41,8 @@ show_image: true            # optional, default true
 image: top                  # airpurifier only: "front" (default) | "top"
 sleeve: leaves               # airpurifier only: overrides `image` with a sleeve design
 color: black                 # welly only: "white" (default) | "black" | "blue" | "green" | "lavender" | "pink" | "yellow"
+tap_action:                  # optional, default: navigate to the device's detail page
+  action: more-info
 ```
 
 | Option | Type | Default | Description |
@@ -51,6 +53,7 @@ color: black                 # welly only: "white" (default) | "black" | "blue" 
 | `image` | `front` \| `top` | `front` | Air Klyna only: which render to show when no `sleeve` is set. |
 | `sleeve` | `none` \| `mountains` \| `pets` \| `leaves` | `none` | Air Klyna only: shows that sleeve design (always in the front pose), overriding `image`. |
 | `color` | `white` \| `black` \| `blue` \| `green` \| `lavender` \| `pink` \| `yellow` | `white` | Welly only: which colorway to show. |
+| `tap_action` | action config | navigate to the device page | What tapping the product image does. Editable via the card's own action picker in the UI editor; supports `navigate`, `more-info`, `url`, and `none`. |
 
 ## Supported devices
 

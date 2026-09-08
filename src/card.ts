@@ -1,6 +1,7 @@
 import { LitElement, html, nothing, type TemplateResult } from 'lit';
 import type { HomeAssistant, KlyqaPetCardConfig, LovelaceCardEditor } from './ha-types';
 import { detectDeviceType, mapEntities, type DeviceType, type MappedEntities } from './mapping';
+import { handleTapAction } from './actions';
 import { isAvailable } from './derive';
 import { resolveLang, t, tEnum, type Lang } from './i18n';
 import { sharedStyles } from './styles';
@@ -112,7 +113,20 @@ export class KlyqaPetCard extends LitElement {
       <div class="card">
         <div class="frame ${showImage ? 'with-image' : ''}">
           ${showImage
-            ? html`<div class="image-column">${this._renderImage(deviceType, config)}</div>`
+            ? html`<div
+                class="image-column"
+                role="button"
+                tabindex="0"
+                @click=${(ev: Event): void => this._onImageTap(ev, device.id, primaryEntityId)}
+                @keydown=${(ev: KeyboardEvent): void => {
+                  if (ev.key === 'Enter' || ev.key === ' ') {
+                    ev.preventDefault();
+                    this._onImageTap(ev, device.id, primaryEntityId);
+                  }
+                }}
+              >
+                ${this._renderImage(deviceType, config)}
+              </div>`
             : nothing}
           <div class="body">
             <div class="header">
@@ -134,6 +148,11 @@ export class KlyqaPetCard extends LitElement {
         </div>
       </div>
     `;
+  }
+
+  private _onImageTap(ev: Event, deviceId: string, primaryEntityId: string | undefined): void {
+    ev.stopPropagation();
+    handleTapAction(this, this._config?.tap_action, deviceId, primaryEntityId);
   }
 
   private _collectProblems(hass: HomeAssistant, entities: MappedEntities, lang: Lang): string[] {
