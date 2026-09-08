@@ -22,6 +22,14 @@ describe('detectDeviceType', () => {
     expect(detectDeviceType('@klyqa.welly-dev')).toBe('welly');
   });
 
+  it('detects welly from @klyqa.welly1', () => {
+    expect(detectDeviceType('@klyqa.welly1')).toBe('welly');
+  });
+
+  it('detects welly from @klyqa.welly1-dev', () => {
+    expect(detectDeviceType('@klyqa.welly1-dev')).toBe('welly');
+  });
+
   it('detects welly from @pfriendly.water-fountain variants', () => {
     expect(detectDeviceType('@pfriendly.water-fountain-pro')).toBe('welly');
   });

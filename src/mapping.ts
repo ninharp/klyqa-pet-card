@@ -9,7 +9,7 @@ export type DeviceType = 'welly' | 'foody' | 'airpurifier';
  */
 export function detectDeviceType(modelId: string | undefined | null): DeviceType | null {
   if (!modelId) return null;
-  if (/^@klyqa\.welly(-dev)?$/.test(modelId) || /^@pfriendly\.water-fountain/.test(modelId)) {
+  if (/^@klyqa\.welly1?(-dev)?$/.test(modelId) || /^@pfriendly\.water-fountain/.test(modelId)) {
     return 'welly';
   }
   if (/^@klyqa\.foody/.test(modelId) || /^@pfriendly\.foody/.test(modelId)) {
