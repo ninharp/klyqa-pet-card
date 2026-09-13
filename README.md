@@ -1,8 +1,8 @@
 # Klyqa Pet Card
 
 A Home Assistant Lovelace card for the [`klyqa_pet`](https://github.com/ninharp/ha-klyqa-pet) integration.
-Renders one Klyqa Pet device — Welly (water fountain), Foody (feeder) or Air Klyna
-(air purifier) — as a single card: product image, status badges, key values
+Renders one Klyqa device — Welly (water fountain), Foody (feeder), Air Klyna
+(air purifier), or Strype (LED strip) — as a single card: product image, status badges, key values
 and direct controls. The device type is detected automatically; you only
 pick the device.
 
@@ -64,6 +64,8 @@ tap_action:                  # optional, default: navigate to the device's detai
   LED / pet lock / beep switches.
 - **Air Klyna** (air purifier): PM2.5 with air-quality colour coding, power,
   fan level, presets, LED colour, ionizer, child lock, filter remaining time.
+- **Strype** (LED strip): on/off, brightness, colour, colour temperature,
+  strip length and re-measurement.
 
 Out of scope for v1: timers/schedules, pet tags, history graphs, multi-device
 cards, custom themes beyond Home Assistant theme variables.
