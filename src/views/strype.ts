@@ -6,6 +6,7 @@ import { t, tEnum, type Lang } from '../i18n';
 import type { HomeAssistant } from '../ha-types';
 import type { MappedEntities } from '../mapping';
 import { renderToggleRow } from '../ui/toggle-row';
+import { hexToRgb, rgbToHex } from '../ui/color';
 
 const DEFAULT_MIN_COLOR_TEMP_KELVIN = 2700;
 const DEFAULT_MAX_COLOR_TEMP_KELVIN = 6500;
@@ -64,10 +65,12 @@ export class KlyqaPetStrypeView extends KlyqaPetViewBase {
             type="color"
             .value=${rgbToHex(rgb)}
             ?disabled=${!on}
-            @change=${(ev: Event) =>
-              this.callService('light', 'turn_on', 'strip', {
-                rgb_color: hexToRgb((ev.target as HTMLInputElement).value),
-              })}
+            @change=${(ev: Event) => {
+              const rgbColor = hexToRgb((ev.target as HTMLInputElement).value);
+              if (rgbColor) {
+                this.callService('light', 'turn_on', 'strip', { rgb_color: rgbColor });
+              }
+            }}
           />
         </label>
         <p class="section-title">${t(lang, 'whiteTemp')}</p>
@@ -99,18 +102,6 @@ export class KlyqaPetStrypeView extends KlyqaPetViewBase {
         : nothing}
     `;
   }
-}
-
-function rgbToHex([r, g, b]: [number, number, number]): string {
-  return `#${[r, g, b].map((c) => c.toString(16).padStart(2, '0')).join('')}`;
-}
-
-function hexToRgb(hex: string): [number, number, number] {
-  const value = hex.replace('#', '');
-  const r = parseInt(value.slice(0, 2), 16);
-  const g = parseInt(value.slice(2, 4), 16);
-  const b = parseInt(value.slice(4, 6), 16);
-  return [r, g, b];
 }
 
 customElements.define('klyqa-pet-strype-view', KlyqaPetStrypeView);
