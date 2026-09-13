@@ -1,6 +1,6 @@
 import type { EntityRegistryDisplayEntry, HomeAssistant } from './ha-types';
 
-export type DeviceType = 'welly' | 'foody' | 'airpurifier';
+export type DeviceType = 'welly' | 'foody' | 'airpurifier' | 'strype';
 
 /**
  * Detects the Klyqa Pet device type from the device registry's `model_id`.
@@ -17,6 +17,9 @@ export function detectDeviceType(modelId: string | undefined | null): DeviceType
   }
   if (/^@klyqa\.airpurifier2/.test(modelId) || /^@pfriendly\.airpurifier/.test(modelId)) {
     return 'airpurifier';
+  }
+  if (/^@klyqa\.lighting\.kl-rgbc3\.rgbcw(-dev)?$/.test(modelId)) {
+    return 'strype';
   }
   return null;
 }

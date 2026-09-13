@@ -10,17 +10,20 @@ import {
   AIRPURIFIER_SLEEVE_IMAGES,
   AIRPURIFIER_TOP_IMAGE,
   FOODY_IMAGE,
+  STRYPE_IMAGE,
   WELLY_IMAGES,
 } from './assets/index';
 
 import './views/welly';
 import './views/foody';
 import './views/airpurifier';
+import './views/strype';
 
 const PRODUCT_NAMES: Record<DeviceType, string> = {
   welly: 'Welly',
   foody: 'Foody',
   airpurifier: 'Air Klyna',
+  strype: 'Strype',
 };
 
 /** Entity keys whose primary state decides the card's overall availability badge. */
@@ -28,6 +31,7 @@ const PRIMARY_ENTITY_KEYS: Record<DeviceType, string[]> = {
   welly: ['water_temperature'],
   foody: ['bowl_remaining'],
   airpurifier: ['pm25', 'fan'],
+  strype: ['strip'],
 };
 
 /** binary_sensor keys that surface as problem chips when "on". */
@@ -175,6 +179,9 @@ export class KlyqaPetCard extends LitElement {
       const src = WELLY_IMAGES[config.color ?? 'white'];
       return html`<img src=${src} alt="Welly" />`;
     }
+    if (deviceType === 'strype') {
+      return html`<img src=${STRYPE_IMAGE} alt="Strype" />`;
+    }
     const sleeve = config.sleeve && config.sleeve !== 'none' ? config.sleeve : undefined;
     const src = sleeve
       ? AIRPURIFIER_SLEEVE_IMAGES[sleeve]
@@ -209,6 +216,12 @@ export class KlyqaPetCard extends LitElement {
           .entities=${entities}
           .lang=${lang}
         ></klyqa-pet-airpurifier-view>`;
+      case 'strype':
+        return html`<klyqa-pet-strype-view
+          .hass=${hass}
+          .entities=${entities}
+          .lang=${lang}
+        ></klyqa-pet-strype-view>`;
     }
   }
 }
