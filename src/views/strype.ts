@@ -86,9 +86,9 @@ export class KlyqaPetStrypeView extends KlyqaPetViewBase {
             })}
         />
       </div>
-      ${length !== undefined
+      ${length !== undefined || this.entities.detect_length
         ? html`<div class="section secondary-line">
-            ${t(lang, 'stripLength')}: ${length} m
+            ${t(lang, 'stripLength')}: ${length !== undefined ? html`${length} m` : '—'}
             ${this.entities.detect_length
               ? html`<button
                   type="button"
