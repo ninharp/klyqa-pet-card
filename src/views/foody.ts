@@ -105,7 +105,10 @@ export class KlyqaPetFoodyView extends KlyqaPetViewBase {
             </div>
           `
         : nothing}
-      ${this.entities.app_led || this.entities.app_pet_lock || this.entities.beep_switch
+      ${this.entities.app_led ||
+      this.entities.app_pet_lock ||
+      this.entities.beep_switch ||
+      this.entities.feed_audio_enable
         ? html`
             <div class="section rows">
               ${this.entities.app_led
@@ -127,6 +130,15 @@ export class KlyqaPetFoodyView extends KlyqaPetViewBase {
                     this.stateValue('beep_switch') === 'on',
                     false,
                     (c) => this.callService('switch', c ? 'turn_on' : 'turn_off', 'beep_switch'),
+                  )
+                : nothing}
+              ${this.entities.feed_audio_enable
+                ? renderToggleRow(
+                    t(lang, 'feedAudio'),
+                    this.stateValue('feed_audio_enable') === 'on',
+                    false,
+                    (c) =>
+                      this.callService('switch', c ? 'turn_on' : 'turn_off', 'feed_audio_enable'),
                   )
                 : nothing}
             </div>
