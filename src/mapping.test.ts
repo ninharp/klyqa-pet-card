@@ -49,6 +49,19 @@ describe('detectDeviceType', () => {
     expect(detectDeviceType(undefined)).toBeNull();
     expect(detectDeviceType(null)).toBeNull();
   });
+
+  it('detects strype from @klyqa.lighting.kl-rgbc3.rgbcw', () => {
+    expect(detectDeviceType('@klyqa.lighting.kl-rgbc3.rgbcw')).toBe('strype');
+  });
+
+  it('detects strype from @klyqa.lighting.kl-rgbc3.rgbcw-dev', () => {
+    expect(detectDeviceType('@klyqa.lighting.kl-rgbc3.rgbcw-dev')).toBe('strype');
+  });
+
+  it('ignores the other lighting products', () => {
+    expect(detectDeviceType('@klyqa.lighting.cw-ww.g95')).toBeNull();
+    expect(detectDeviceType('@klyqa.lighting.rgb-cw-ww.e27')).toBeNull();
+  });
 });
 
 describe('mapEntities', () => {

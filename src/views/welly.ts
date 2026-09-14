@@ -9,6 +9,7 @@ import { renderChips } from '../ui/chips';
 import { renderBar } from '../ui/bar';
 import { renderStepper } from '../ui/stepper';
 import { renderToggleRow } from '../ui/toggle-row';
+import { defineElement } from '../define';
 
 const MODES = ['sensing', 'fresh_water_24h', 'water_change', 'self_wash', 'drain'];
 const DEFAULT_TANK_MAX_ML = 1600;
@@ -147,7 +148,7 @@ export class KlyqaPetWellyView extends KlyqaPetViewBase {
   }
 }
 
-customElements.define('klyqa-pet-welly-view', KlyqaPetWellyView);
+defineElement('klyqa-pet-welly-view', KlyqaPetWellyView);
 
 declare global {
   interface HTMLElementTagNameMap {

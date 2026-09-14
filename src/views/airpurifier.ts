@@ -7,6 +7,8 @@ import type { HomeAssistant } from '../ha-types';
 import type { MappedEntities } from '../mapping';
 import { renderChips } from '../ui/chips';
 import { renderToggleRow } from '../ui/toggle-row';
+import { hexToRgb, rgbToHex } from '../ui/color';
+import { defineElement } from '../define';
 
 const FAN_LEVELS: Array<{ value: string; percentage: number }> = [
   { value: '1', percentage: 33 },
@@ -103,10 +105,12 @@ export class KlyqaPetAirpurifierView extends KlyqaPetViewBase {
                 <input
                   type="color"
                   .value=${rgbToHex(rgb)}
-                  @change=${(e: Event) =>
-                    this.callService('light', 'turn_on', 'led', {
-                      rgb_color: hexToRgb((e.target as HTMLInputElement).value),
-                    })}
+                  @change=${(e: Event) => {
+                    const rgbColor = hexToRgb((e.target as HTMLInputElement).value);
+                    if (rgbColor) {
+                      this.callService('light', 'turn_on', 'led', { rgb_color: rgbColor });
+                    }
+                  }}
                 />
               </label>
             </div>
@@ -148,19 +152,7 @@ function formatDuration(minutes: number, lang: Lang): string {
   return `${hours}${hourUnit}`;
 }
 
-function rgbToHex([r, g, b]: [number, number, number]): string {
-  return `#${[r, g, b].map((c) => c.toString(16).padStart(2, '0')).join('')}`;
-}
-
-function hexToRgb(hex: string): [number, number, number] {
-  const value = hex.replace('#', '');
-  const r = parseInt(value.slice(0, 2), 16);
-  const g = parseInt(value.slice(2, 4), 16);
-  const b = parseInt(value.slice(4, 6), 16);
-  return [r, g, b];
-}
-
-customElements.define('klyqa-pet-airpurifier-view', KlyqaPetAirpurifierView);
+defineElement('klyqa-pet-airpurifier-view', KlyqaPetAirpurifierView);
 
 declare global {
   interface HTMLElementTagNameMap {

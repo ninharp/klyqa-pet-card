@@ -56,6 +56,12 @@ const STRINGS: Record<Lang, Strings> = {
       portions: 'Portions',
       days: 'd',
       hours: 'h',
+      brightness: 'Brightness',
+      stripLength: 'Strip length',
+      detectLength: 'Detect length',
+      lightMode: 'Light mode',
+      colour: 'Colour',
+      whiteTemp: 'White',
     },
     enums: {
       mode: {
@@ -107,6 +113,11 @@ const STRINGS: Record<Lang, Strings> = {
         tilted: 'Tilted',
         filter_removed: 'Filter removed',
       },
+      lightMode: {
+        rgb: 'Colour',
+        cct: 'White',
+        cmd: 'Effect',
+      },
     },
   },
   de: {
@@ -153,6 +164,12 @@ const STRINGS: Record<Lang, Strings> = {
       portions: 'Portionen',
       days: 'T',
       hours: 'Std',
+      brightness: 'Helligkeit',
+      stripLength: 'Streifenlänge',
+      detectLength: 'Länge messen',
+      lightMode: 'Lichtmodus',
+      colour: 'Farbe',
+      whiteTemp: 'Weiß',
     },
     enums: {
       mode: {
@@ -203,6 +220,11 @@ const STRINGS: Record<Lang, Strings> = {
         bowl_removed: 'Napf entfernt',
         tilted: 'Gekippt',
         filter_removed: 'Filter entfernt',
+      },
+      lightMode: {
+        rgb: 'Farbe',
+        cct: 'Weiß',
+        cmd: 'Effekt',
       },
     },
   },

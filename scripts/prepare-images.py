@@ -8,6 +8,7 @@ and writes:
   - src/assets/airpurifier.webp         (front render, no sleeve)
   - src/assets/airpurifier-sleeve-<name>.webp  (one per AIRPURIFIER_SLEEVES entry)
   - src/assets/foody.webp               (front render)
+  - src/assets/strype.webp              (product image, padded to square)
   - src/assets/index.ts                 (exports each image as an embedded data URI
                                           string, so the final Vite bundle stays a single file)
 
@@ -70,6 +71,8 @@ AIRPURIFIER_SLEEVES: dict[str, Path] = {
 
 FOODY_SOURCE = SOURCE_ROOT / "foody" / "Foody-image-placeholder.png"
 
+STRYPE_SOURCE = SOURCE_ROOT / "strype" / "final_ohne background.png"
+
 
 def downscale(image: Image.Image, max_dimension: int) -> Image.Image:
     width, height = image.size
@@ -84,16 +87,34 @@ def save_webp(image: Image.Image, path: Path) -> None:
     image.save(path, format="WEBP", quality=WEBP_QUALITY, method=6)
 
 
+def pad_to_square(image: Image.Image) -> Image.Image:
+    """Centre a non-square render on a transparent square canvas.
+
+    The pet renders arrive square with the spacing the designer intended, which is
+    why process_photo does not crop. The Strype render is landscape, so it is padded
+    instead of cropped to keep both the margins and the card's 1:1 image box intact.
+    """
+    width, height = image.size
+    if width == height:
+        return image
+    side = max(width, height)
+    square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+    square.paste(image, ((side - width) // 2, (side - height) // 2), image)
+    return square
+
+
 def to_data_uri(path: Path) -> str:
     data = base64.b64encode(path.read_bytes()).decode("ascii")
     return f"data:image/webp;base64,{data}"
 
 
-def process_photo(source: Path, dest: Path) -> None:
+def process_photo(source: Path, dest: Path, *, square: bool = False) -> None:
     # No content-crop here: the source canvases are pre-composed by the designer
     # with intentional padding so the devices sit at a consistent relative scale
     # next to each other. Cropping to the alpha bbox would discard that.
     image = Image.open(source).convert("RGBA")
+    if square:
+        image = pad_to_square(image)
     image = downscale(image, MAX_DIMENSION)
     save_webp(image, dest)
     print(f"{dest.name}: {image.size[0]}x{image.size[1]}, {dest.stat().st_size} bytes")
@@ -111,6 +132,7 @@ def write_assets_index(
     airpurifier_top: Path,
     sleeves: dict[str, Path],
     foody: Path,
+    strype: Path,
 ) -> None:
     dest = ASSETS_DIR / "index.ts"
     welly_entries = ",\n".join(f'  {color}: "{to_data_uri(path)}"' for color, path in welly.items())
@@ -126,7 +148,8 @@ def write_assets_index(
         "export const AIRPURIFIER_SLEEVE_IMAGES: Record<string, string> = {\n"
         f"{sleeve_entries},\n"
         "};\n\n"
-        f'export const FOODY_IMAGE = "{to_data_uri(foody)}";\n',
+        f'export const FOODY_IMAGE = "{to_data_uri(foody)}";\n\n'
+        f'export const STRYPE_IMAGE = "{to_data_uri(strype)}";\n',
         encoding="utf-8",
     )
     print(f"{dest.name}: {dest.stat().st_size} bytes")
@@ -139,6 +162,7 @@ def main() -> None:
     airpurifier_dest = ASSETS_DIR / "airpurifier.webp"
     sleeve_dest = {name: ASSETS_DIR / f"airpurifier-sleeve-{name}.webp" for name in AIRPURIFIER_SLEEVES}
     foody_dest = ASSETS_DIR / "foody.webp"
+    strype_dest = ASSETS_DIR / "strype.webp"
 
     for color, source in WELLY_COLORS.items():
         process_photo(source, welly_dest[color])
@@ -147,8 +171,9 @@ def main() -> None:
     for name, source in AIRPURIFIER_SLEEVES.items():
         process_photo(source, sleeve_dest[name])
     process_photo(FOODY_SOURCE, foody_dest)
+    process_photo(STRYPE_SOURCE, strype_dest, square=True)
 
-    write_assets_index(welly_dest, airpurifier_dest, AIRPURIFIER_TOP_DEST, sleeve_dest, foody_dest)
+    write_assets_index(welly_dest, airpurifier_dest, AIRPURIFIER_TOP_DEST, sleeve_dest, foody_dest, strype_dest)
 
 
 if __name__ == "__main__":
