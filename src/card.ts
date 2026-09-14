@@ -18,6 +18,7 @@ import './views/welly';
 import './views/foody';
 import './views/airpurifier';
 import './views/strype';
+import { defineElement } from './define';
 
 const PRODUCT_NAMES: Record<DeviceType, string> = {
   welly: 'Welly',
@@ -226,7 +227,7 @@ export class KlyqaPetCard extends LitElement {
   }
 }
 
-customElements.define('klyqa-pet-card', KlyqaPetCard);
+defineElement('klyqa-pet-card', KlyqaPetCard);
 
 declare global {
   interface HTMLElementTagNameMap {

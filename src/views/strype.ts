@@ -7,6 +7,7 @@ import type { HomeAssistant } from '../ha-types';
 import type { MappedEntities } from '../mapping';
 import { renderToggleRow } from '../ui/toggle-row';
 import { hexToRgb, rgbToHex } from '../ui/color';
+import { defineElement } from '../define';
 
 const DEFAULT_MIN_COLOR_TEMP_KELVIN = 2700;
 const DEFAULT_MAX_COLOR_TEMP_KELVIN = 6500;
@@ -104,7 +105,7 @@ export class KlyqaPetStrypeView extends KlyqaPetViewBase {
   }
 }
 
-customElements.define('klyqa-pet-strype-view', KlyqaPetStrypeView);
+defineElement('klyqa-pet-strype-view', KlyqaPetStrypeView);
 
 declare global {
   interface HTMLElementTagNameMap {

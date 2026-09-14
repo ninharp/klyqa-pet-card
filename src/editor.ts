@@ -2,6 +2,7 @@ import { LitElement, html, type TemplateResult } from 'lit';
 import { state } from 'lit/decorators.js';
 import type { HomeAssistant, KlyqaPetCardConfig } from './ha-types';
 import { detectDeviceType } from './mapping';
+import { defineElement } from './define';
 
 /**
  * Minimal structural type for the subset of `ha-form`'s schema this editor
@@ -139,7 +140,7 @@ export class KlyqaPetCardEditor extends LitElement {
   }
 }
 
-customElements.define('klyqa-pet-card-editor', KlyqaPetCardEditor);
+defineElement('klyqa-pet-card-editor', KlyqaPetCardEditor);
 
 declare global {
   interface HTMLElementTagNameMap {

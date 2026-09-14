@@ -7,6 +7,7 @@ import type { HomeAssistant } from '../ha-types';
 import type { MappedEntities } from '../mapping';
 import { renderStepper } from '../ui/stepper';
 import { renderToggleRow } from '../ui/toggle-row';
+import { defineElement } from '../define';
 
 export class KlyqaPetFoodyView extends KlyqaPetViewBase {
   @property({ attribute: false }) hass!: HomeAssistant;
@@ -177,7 +178,7 @@ export class KlyqaPetFoodyView extends KlyqaPetViewBase {
   }
 }
 
-customElements.define('klyqa-pet-foody-view', KlyqaPetFoodyView);
+defineElement('klyqa-pet-foody-view', KlyqaPetFoodyView);
 
 declare global {
   interface HTMLElementTagNameMap {

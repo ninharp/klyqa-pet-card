@@ -8,6 +8,7 @@ import type { MappedEntities } from '../mapping';
 import { renderChips } from '../ui/chips';
 import { renderToggleRow } from '../ui/toggle-row';
 import { hexToRgb, rgbToHex } from '../ui/color';
+import { defineElement } from '../define';
 
 const FAN_LEVELS: Array<{ value: string; percentage: number }> = [
   { value: '1', percentage: 33 },
@@ -151,7 +152,7 @@ function formatDuration(minutes: number, lang: Lang): string {
   return `${hours}${hourUnit}`;
 }
 
-customElements.define('klyqa-pet-airpurifier-view', KlyqaPetAirpurifierView);
+defineElement('klyqa-pet-airpurifier-view', KlyqaPetAirpurifierView);
 
 declare global {
   interface HTMLElementTagNameMap {
