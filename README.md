@@ -10,9 +10,13 @@ pick the device.
 
 ## Screenshots
 
-| Welly | Foody | Air Klyna |
-| --- | --- | --- |
-| ![Welly card](docs/screenshots/welly.png) | ![Foody card](docs/screenshots/foody.png) | ![Air Klyna card](docs/screenshots/airpurifier.png) |
+| Welly | Foody |
+| --- | --- |
+| ![Welly card](docs/screenshots/welly.png) | ![Foody card](docs/screenshots/foody.png) |
+
+| Air Klyna | Strype |
+| --- | --- |
+| ![Air Klyna card](docs/screenshots/airpurifier.png) | ![Strype card](docs/screenshots/strype.png) |
 
 ## Installation
 
