@@ -88,6 +88,13 @@
           model_id: '@klyqa.airpurifier2',
           identifiers: [['klyqa_pet', 'airklynaoffice']],
         },
+        'dev-strype': {
+          id: 'dev-strype',
+          name: 'Klyqa Strype 88019C',
+          manufacturer: 'Klyqa',
+          model_id: '@klyqa.lighting.kl-rgbc3.rgbcw',
+          identifiers: [['klyqa_pet', 'strype88019c']],
+        },
       };
 
       const entities = {};
@@ -142,6 +149,25 @@
       add('sensor.air_filter_remaining', 'dev-air', 'filter_remaining', '4320', { unit_of_measurement: 'min' });
       add('binary_sensor.air_power', 'dev-air', undefined, 'on', { device_class: 'power' });
 
+      // Strype - in colour mode, so the colour swatch carries a value and the white
+      // slider sits at its minimum, which is what Home Assistant reports while the
+      // active colour mode is rgb.
+      add('light.strype_strip', 'dev-strype', 'strip', 'on', {
+        brightness: 229,
+        rgb_color: [255, 64, 160],
+        color_mode: 'rgb',
+        supported_color_modes: ['rgb', 'color_temp'],
+        min_color_temp_kelvin: 2700,
+        max_color_temp_kelvin: 6500,
+        supported_features: 32,
+      });
+      add('sensor.strype_light_mode', 'dev-strype', 'light_mode', 'rgb');
+      add('sensor.strype_strip_length', 'dev-strype', 'strip_length', '2', {
+        device_class: 'distance',
+        unit_of_measurement: 'm',
+      });
+      add('button.strype_detect_length', 'dev-strype', 'detect_length', '2026-09-01T00:00:00Z');
+
       const hass = {
         states,
         entities,
@@ -159,6 +185,7 @@
         { device: 'dev-foody' },
         { device: 'dev-air' },
         { device: 'dev-air', sleeve: 'leaves', name: 'Air Klyna (leaves sleeve)' },
+        { device: 'dev-strype' },
       ];
       for (const config of configs) {
         const card = document.createElement('klyqa-pet-card');

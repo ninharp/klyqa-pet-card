@@ -94,6 +94,8 @@ npm run build   # -> dist/klyqa-pet-card.js
 `scripts/prepare-images.py` (re)generates the embedded product images from
 the source renders; it needs Pillow (see the script's docstring).
 
-`dev/preview.html` is a standalone harness (not shipped) that loads the
-built module directly against fixture `hass` objects, useful for visually
-checking all three device views without a running Home Assistant instance.
+`dev/preview.html` is a harness (not shipped) that renders every device view
+against fixture `hass` objects, useful for checking them without a running Home
+Assistant instance. It loads the built module as an ES module, so serve it over
+HTTP rather than opening the file directly — `python3 -m http.server` in the
+repository root, then open `/dev/preview.html`.
