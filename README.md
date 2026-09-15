@@ -71,8 +71,15 @@ tap_action:                  # optional, default: navigate to the device's detai
 - **Strype** (LED strip): on/off, brightness, colour, colour temperature,
   strip length and re-measurement.
 
-Out of scope for v1: timers/schedules, pet tags, history graphs, multi-device
-cards, custom themes beyond Home Assistant theme variables.
+The card shows what you reach for day to day. The integration exposes more than
+that — the Foody's feeding schedules and sleep window, the Welly's quiet time,
+descaling reminder and water-change schedules — as their own entities and
+actions, which you can place on a dashboard yourself or drive from an
+automation. See the [integration's README](https://github.com/ninharp/ha-klyqa-pet#readme).
+
+Out of scope for the card itself: editing those schedules, pet tags, history
+graphs, multi-device cards, and custom themes beyond Home Assistant theme
+variables.
 
 ## Development
 
